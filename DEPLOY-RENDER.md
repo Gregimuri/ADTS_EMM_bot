@@ -54,9 +54,34 @@ git commit -m "EMM Telegram bot for Render"
 
 Скопируйте URL сервиса, например `https://emm-bot-xxxx.onrender.com`.
 
-1. Откройте https://cron-job.org (бесплатно) или любой другой cron.
-2. Создайте задачу: **каждые 10 минут**, метод GET, URL вашего сервиса.
-3. Без этого бот заснёт, и ответы появятся только после «пробуждения» (~1 мин).
+### Вариант A — GitHub Actions (уже в репозитории)
+
+Файл `.github/workflows/keep-alive.yml` пингует сервис каждые ~10 минут.  
+После пуша в `main` зайдите в GitHub → **Actions** → **Keep Render Awake** → **Run workflow** (проверка вручную).
+
+Расписание GitHub иногда запаздывает; если бот всё же засыпает — используйте вариант B.
+
+### Вариант B — UptimeRobot (надёжнее)
+
+1. Зарегистрируйтесь: https://uptimerobot.com
+2. **Add New Monitor**
+3. Параметры:
+   - Monitor Type: **HTTP(s)**
+   - Friendly Name: `ADTS EMM bot`
+   - URL: `https://adts-emm-bot.onrender.com`
+   - Monitoring Interval: **5 minutes**
+4. **Create Monitor**
+
+### Вариант C — cron-job.org
+
+1. https://cron-job.org → регистрация
+2. **Create cronjob**
+3. URL: `https://adts-emm-bot.onrender.com`
+4. Schedule: every **10 minutes**
+5. Request method: **GET**
+6. Create
+
+Без keep-alive бот заснёт, и ответы появятся только после «пробуждения» (~1 мин).
 
 ## 4. Важно
 

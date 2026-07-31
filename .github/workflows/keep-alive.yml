@@ -13,8 +13,18 @@ jobs:
       - name: Ping Render health endpoint
         run: |
           set -e
-          code=$(curl -sS -o /tmp/body -w "%{http_code}" --max-time 30 https://adts-emm-bot.onrender.com/)
-          echo "HTTP $code"
-          cat /tmp/body
-          echo
-          test "$code" = "200"
+          url="https://adts-emm-bot.onrender.com/"
+          for i in 1 2 3 4 5 6; do
+            echo "Attempt $i..."
+            code=$(curl -sS -o /tmp/body -w "%{http_code}" --max-time 60 "$url" || echo "000")
+            echo "HTTP $code"
+            cat /tmp/body || true
+            echo
+            if [ "$code" = "200" ]; then
+              echo "OK"
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "All attempts failed"
+          exit 1

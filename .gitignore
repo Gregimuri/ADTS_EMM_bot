@@ -1,0 +1,14 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+.Python
+~$*
+*.log
+.cache/
+sheet_cache.csv
+_diag*
+test_out*.txt
+*.xlsx
+bot_run.log

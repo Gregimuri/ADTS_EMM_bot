@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: emm-bot
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_PROXY
+        value: ""
+      - key: SPREADSHEET_ID
+        value: "12aHPQbN65UBk6vlxiDB_nCg9V_xSbrbms70X3xqABKQ"
+      - key: SHEET_GID
+        value: "58485295"

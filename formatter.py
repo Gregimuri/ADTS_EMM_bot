@@ -74,6 +74,25 @@ def _format_emm_line(row: PlayerRow) -> str:
     return ""
 
 
+def _normalize(text: str) -> str:
+    return _clean(text).casefold().replace("ё", "е")
+
+
+def _is_do_nothing(row: PlayerRow) -> bool:
+    if _clean(row.do_nothing):
+        return True
+    emm = _normalize(row.emm)
+    update_cube = _normalize(row.update_cube)
+    return "не ставить" in emm and "обновить удаленно" in update_cube
+
+
+def _do_nothing_message(row: PlayerRow) -> str:
+    explicit = _clean(row.do_nothing)
+    if explicit:
+        return _capitalize(explicit)
+    return "Ничего не делать"
+
+
 def _capitalize(text: str) -> str:
     if not text:
         return text
@@ -82,11 +101,9 @@ def _capitalize(text: str) -> str:
 
 def _format_device(row: PlayerRow, tt_prefix: str) -> str:
     label = _device_label(row.name, tt_prefix)
-    do_nothing = _clean(row.do_nothing)
 
-    # «Ничего не делать» → короткий блок с ❌
-    if do_nothing:
-        return f"🛠 {label} ❌\n{_capitalize(do_nothing)}"
+    if _is_do_nothing(row):
+        return f"🛠 {label} ❌\n{_do_nothing_message(row)}"
 
     lines = [f"🛠 {label} ✅"]
 

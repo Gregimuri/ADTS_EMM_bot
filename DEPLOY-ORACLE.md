@@ -41,7 +41,7 @@ scp -i $KEY `
 scp -i $KEY -r deploy "ubuntu@${IP}:~/emm-bot/"
 ```
 
-Excel (`Список для Эдтех.xlsx`) копировать не обязательно — основной источник Google Sheets.
+Excel (`База для бота.xlsx`) копировать не обязательно — основной источник Google Sheets.
 
 ## 3. Токен и установка
 

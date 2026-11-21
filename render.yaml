@@ -14,6 +14,6 @@ services:
       - key: TELEGRAM_PROXY
         value: ""
       - key: SPREADSHEET_ID
-        value: "12aHPQbN65UBk6vlxiDB_nCg9V_xSbrbms70X3xqABKQ"
+        value: "1sRy5VuFGEWsh_RZCGUkWKyKcLP8i6dO-F1smi4ok4Mk"
       - key: SHEET_GID
-        value: "58485295"
+        value: "0"

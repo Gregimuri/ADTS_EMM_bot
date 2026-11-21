@@ -25,7 +25,8 @@ ACTIVE_PROXY: str | None = None
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
         "Пришли название ТТ (например, Ополченская) — "
-        "верну оборудование из таблицы «Список для Эдтех».\n\n"
+        "верну оборудование из Google Таблицы «База для бота» "
+        "(лист «ЕММ (Список плееров)»).\n\n"
         "Команды:\n"
         "/start — справка\n"
         "/reload — перезагрузить таблицу"

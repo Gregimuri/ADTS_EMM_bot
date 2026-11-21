@@ -44,8 +44,8 @@ git commit -m "EMM Telegram bot for Render"
 |-----|--------|
 | `BOT_TOKEN` | токен от BotFather |
 | `TELEGRAM_PROXY` | *(пусто)* |
-| `SPREADSHEET_ID` | `12aHPQbN65UBk6vlxiDB_nCg9V_xSbrbms70X3xqABKQ` |
-| `SHEET_GID` | `58485295` |
+| `SPREADSHEET_ID` | `1sRy5VuFGEWsh_RZCGUkWKyKcLP8i6dO-F1smi4ok4Mk` |
+| `SHEET_GID` | `0` (лист «ЕММ (Список плееров)») |
 
 4. **Create Web Service** → дождитесь Deploy live.
 5. В логах должны быть: `Health server listening`, `Telegram OK`, `Bot started`.

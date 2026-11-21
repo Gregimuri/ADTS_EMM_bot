@@ -5,7 +5,7 @@ Telegram-бот: пишешь название ТТ (например, `Опол
 ## Быстрый старт
 
 1. Открой доступ к таблице:
-   - [Список для Эдтех](https://docs.google.com/spreadsheets/d/12aHPQbN65UBk6vlxiDB_nCg9V_xSbrbms70X3xqABKQ/edit?gid=58485295)
+   - [База для бота](https://docs.google.com/spreadsheets/d/1sRy5VuFGEWsh_RZCGUkWKyKcLP8i6dO-F1smi4ok4Mk/edit?gid=0#gid=0), лист **ЕММ (Список плееров)**
    - «Настройки доступа» → «Все, у кого есть ссылка» → роль **Читатель**
 2. В `.env` укажи `BOT_TOKEN` (и при необходимости `TELEGRAM_PROXY`).
 3. Запуск:

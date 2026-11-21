@@ -1,69 +1,127 @@
-# Бот ЕММ / Эдтех
+# ADTS EMM Bot
 
-Telegram-бот: пишешь название ТТ (например, `Ополченская`), бот ищет совпадения в столбце **name** Google Таблицы и отвечает списком оборудования.
+Telegram-бот для поиска оборудования торговых точек (ТТ) по данным из Google Таблицы **«База для бота»**.  
+Пользователь отправляет название или часть названия ТТ — бот возвращает сгруппированный список плееров: PlayerId, модель, ЕММ, ADB, кубик, MAC и прочие поля.
 
-## Быстрый старт
+**Продакшен:** [@ADTS_EMM_bot](https://t.me/ADTS_EMM_bot) (Render).
 
-1. Открой доступ к таблице:
-   - [База для бота](https://docs.google.com/spreadsheets/d/1sRy5VuFGEWsh_RZCGUkWKyKcLP8i6dO-F1smi4ok4Mk/edit?gid=0#gid=0), лист **ЕММ (Список плееров)**
-   - «Настройки доступа» → «Все, у кого есть ссылка» → роль **Читатель**
-2. В `.env` укажи `BOT_TOKEN` (и при необходимости `TELEGRAM_PROXY`).
-3. Запуск:
-   - двойной клик по `start.bat`, **или** из папки проекта:
+## Возможности
 
-```bat
-.venv\Scripts\python.exe bot.py
-```
+- Поиск по подстроке в столбце `name` (без учёта регистра)
+- Группировка устройств по торговой точке
+- Компактный формат ответа (статусы ✅ / ❌, блоки по устройствам)
+- Автоматическая пометка **«Ничего не делать»**, если в таблице так указано или одновременно **ЕММ: не ставить** и **Кубик: Обновить удалённо**
+- Загрузка данных из Google Sheets (CSV) с запасным вариантом — локальный Excel
+- На ПК в РФ: автоподбор SOCKS/HTTP-прокси до Telegram API
+- Для хостинга: HTTP `/` (GET/HEAD) для health-check и keep-alive
 
-В PowerShell:
+## Источник данных
+
+| Параметр | Значение |
+|----------|----------|
+| Таблица | [База для бота](https://docs.google.com/spreadsheets/d/1sRy5VuFGEWsh_RZCGUkWKyKcLP8i6dO-F1smi4ok4Mk/edit?gid=0) |
+| Лист | **ЕММ (Список плееров)** (`gid=0`) |
+
+Таблица должна быть доступна **по ссылке** с ролью **Читатель** (экспорт CSV без OAuth).
+
+Ожидаемые столбцы (порядок важен): `objectNumber`, `Адрес`, `playerId`, `name`, `ЕММ`, `Перепрошить`, `Модель`, `подключение по adb`, `Обновить Кубик`, `Ничего не делать`, `Версия старая`, `Эдтех`, `network.macAddress`.
+
+## Стек
+
+- Python 3.10+
+- [python-telegram-bot](https://pypi.org/project/python-telegram-bot/) 22.x (long polling)
+- httpx, openpyxl, python-dotenv
+
+## Структура репозитория
+
+| Файл / каталог | Назначение |
+|----------------|------------|
+| `bot.py` | Точка входа, хендлеры, polling |
+| `config.py` | Переменные окружения и константы столбцов |
+| `sheets.py` | Загрузка таблицы и поиск |
+| `formatter.py` | Форматирование ответов в Telegram |
+| `proxy_detect.py` | Проверка Telegram и автопоиск локального прокси |
+| `health_server.py` | HTTP health для Render / UptimeRobot |
+| `render.yaml` | Blueprint деплоя на Render |
+| `deploy/` | systemd и скрипт установки (Oracle / VPS) |
+| `DEPLOY-RENDER.md`, `DEPLOY-ORACLE.md` | Подробные инструкции по хостингу |
+
+## Быстрый старт (локально, Windows)
 
 ```powershell
+cd "путь\к\проекту"
+python -m venv .venv
+.\.venv\Scripts\pip install -r requirements.txt
+copy .env.example .env
+# заполните BOT_TOKEN в .env
 .\.venv\Scripts\python.exe bot.py
 ```
 
-Не используй системный `python` без `.venv` — будет ошибка `No module named 'httpx'`.
+Или запуск через `start.bat`.
 
-## Команды
+> Используйте Python из `.venv`. Системный `python` без зависимостей даст ошибку вида `No module named 'httpx'`.
 
-- `/start` — справка
-- `/reload` — перечитать таблицу (Google, иначе Excel)
+## Переменные окружения
 
-## Настройки
+Скопируйте `.env.example` в `.env` или задайте переменные на хостинге:
 
-Файл `.env`:
+| Переменная | Обязательно | Описание |
+|------------|-------------|----------|
+| `BOT_TOKEN` | да | Токен от [@BotFather](https://t.me/BotFather) |
+| `SPREADSHEET_ID` | нет | ID Google Таблицы (есть значение по умолчанию) |
+| `SHEET_GID` | нет | ID листа (`0` для «ЕММ (Список плееров)») |
+| `TELEGRAM_PROXY` | нет | Прокси к `api.telegram.org` (`socks5://…` или `http://…`). На Render обычно пусто |
+| `LOCAL_XLSX` | нет | Имя запасного Excel в каталоге проекта |
 
-- `BOT_TOKEN` — токен от BotFather
-- `TELEGRAM_PROXY` — SOCKS5/HTTP прокси к Telegram (опционально)
-- `SPREADSHEET_ID` / `SHEET_GID` — id таблицы и листа
-- `LOCAL_XLSX` — запасной Excel
-
-## Если бот не отвечает
-
-Частая причина в РФ: **сеть блокирует `api.telegram.org`** (Google Таблица при этом работает).
-
-1. Включи VPN на ПК **или** укажи прокси клиента VPN в `.env`:
+Пример `.env` для текущей таблицы:
 
 ```env
-TELEGRAM_PROXY=socks5://127.0.0.1:1080
+BOT_TOKEN=ваш_токен
+SPREADSHEET_ID=1sRy5VuFGEWsh_RZCGUkWKyKcLP8i6dO-F1smi4ok4Mk
+SHEET_GID=0
+TELEGRAM_PROXY=
 ```
 
-или
+## Команды бота
 
-```env
-TELEGRAM_PROXY=http://127.0.0.1:7890
-```
+| Команда | Действие |
+|---------|----------|
+| `/start` | Краткая справка |
+| `/reload` | Перечитать данные из Google (при ошибке — из Excel) |
+| *текст* | Поиск по столбцу `name` |
 
-Порт смотри в настройках VPN (Clash / Hiddify / Outline / v2rayN и т.п.).
+## Деплой 24/7
 
-2. Запускай **только один** экземпляр `python bot.py`.
+Основной вариант — **Render** (Free Web Service + keep-alive):
 
-При старте бот сам проверяет доступ к Telegram и пишет ошибку, если связи нет.
+- Инструкция: [DEPLOY-RENDER.md](DEPLOY-RENDER.md)
+- В Environment на Render: `BOT_TOKEN`, `SPREADSHEET_ID`, `SHEET_GID`, пустой `TELEGRAM_PROXY`
+- Обязателен keep-alive (UptimeRobot / GitHub Actions), иначе free-инстанс засыпает
 
-## Важно про токен
+Альтернатива — VPS Oracle Cloud: [DEPLOY-ORACLE.md](DEPLOY-ORACLE.md)
 
-Если токен светился в переписке или попал в логи — отзови его в [@BotFather](https://t.me/BotFather) (`/revoke`) и пропиши новый в `.env`.
+**Важно:** одновременно должен работать только **один** экземпляр бота (иначе `Conflict` в Telegram).
 
-## Постоянная работа 24/7
+## Если бот не отвечает (РФ, локальный запуск)
 
-- **Render (выбранный вариант):** [DEPLOY-RENDER.md](DEPLOY-RENDER.md)
-- **Oracle Cloud Always Free:** [DEPLOY-ORACLE.md](DEPLOY-ORACLE.md)
+Часто блокируется `api.telegram.org`, при этом Google Sheets доступен.
+
+1. Включите VPN или укажите прокси клиента в `TELEGRAM_PROXY` (типичные порты: `10808`, `7890`).
+2. При старте бот сам проверяет Telegram; при успехе может сохранить рабочий прокси в `.env`.
+3. Не запускайте второй экземпляр параллельно с Render.
+
+## Репозитории
+
+| Remote | URL |
+|--------|-----|
+| GitHub | https://github.com/Gregimuri/ADTS_EMM_bot |
+| GitLab | https://gitlab.remosa.ru/adts-platform/adts_emm_bot |
+
+## Безопасность
+
+Токен бота храните только в `.env` / секретах хостинга, не коммитьте в git.  
+При утечке токена — `/revoke` в BotFather и новый токен в настройках.
+
+## Лицензия
+
+Внутренний инструмент ADTS. При публикации уточните лицензию у владельца репозитория.
